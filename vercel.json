@@ -1,0 +1,16 @@
+{
+	"version": 2,
+	"buildCommand": "npm run build",
+	"outputDirectory": "dist/public",
+	"framework": null,
+	"functions": {
+		"api/index.ts": {
+			"runtime": "nodejs20.x"
+		}
+	},
+	"routes": [
+		{ "src": "/api/(.*)", "dest": "/api/index.ts" },
+		{ "handle": "filesystem" },
+		{ "src": "/(.*)", "dest": "/$1" }
+	]
+}
