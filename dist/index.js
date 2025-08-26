@@ -611,6 +611,25 @@ async function setupAuth(app) {
 }
 var isAuthenticated = async (req, res, next) => {
   if (!authEnabled) {
+    const devClaims = {
+      sub: "dev-user",
+      email: "dev@example.com",
+      first_name: "Dev",
+      last_name: "User",
+      profile_image_url: ""
+    };
+    await storage.upsertUser({
+      id: devClaims.sub,
+      email: devClaims.email,
+      firstName: devClaims.first_name,
+      lastName: devClaims.last_name,
+      profileImageUrl: devClaims.profile_image_url
+    });
+    req.user = {
+      claims: devClaims,
+      expires_at: Math.floor(Date.now() / 1e3) + 60 * 60 * 24 * 365
+      // 1 year
+    };
     return next();
   }
   const user = req.user;
@@ -790,8 +809,9 @@ async function registerRoutes(app) {
       if (!question) {
         return res.status(404).json({ message: "Question not found" });
       }
+      const currentViews = question.viewsCount ?? 0;
       await storage.updateForumQuestion(req.params.id, {
-        viewsCount: question.viewsCount + 1
+        viewsCount: currentViews + 1
       });
       res.json(question);
     } catch (error) {
@@ -844,7 +864,9 @@ async function registerRoutes(app) {
       if (!question) {
         return res.status(404).json({ message: "Question not found" });
       }
-      const updates = type === "up" ? { upvotes: question.upvotes + 1 } : { downvotes: question.downvotes + 1 };
+      const safeUp = question.upvotes ?? 0;
+      const safeDown = question.downvotes ?? 0;
+      const updates = type === "up" ? { upvotes: safeUp + 1 } : { downvotes: safeDown + 1 };
       const updated = await storage.updateForumQuestion(req.params.id, updates);
       res.json(updated);
     } catch (error) {
@@ -860,7 +882,9 @@ async function registerRoutes(app) {
         return res.status(404).json({ message: "Answer not found" });
       }
       const currentAnswer = answer[0];
-      const updates = type === "up" ? { upvotes: currentAnswer.upvotes + 1 } : { downvotes: currentAnswer.downvotes + 1 };
+      const safeUp = currentAnswer.upvotes ?? 0;
+      const safeDown = currentAnswer.downvotes ?? 0;
+      const updates = type === "up" ? { upvotes: safeUp + 1 } : { downvotes: safeDown + 1 };
       const updated = await storage.updateForumAnswer(req.params.id, updates);
       res.json(updated);
     } catch (error) {
@@ -1205,9 +1229,9 @@ async function createApp() {
     const path3 = req.path;
     let capturedJsonResponse = void 0;
     const originalResJson = res.json;
-    res.json = function(bodyJson, ...args) {
+    res.json = function(bodyJson) {
       capturedJsonResponse = bodyJson;
-      return originalResJson.apply(res, [bodyJson, ...args]);
+      return originalResJson.call(res, bodyJson);
     };
     res.on("finish", () => {
       const duration = Date.now() - start;
