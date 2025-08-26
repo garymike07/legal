@@ -42,12 +42,12 @@ export default function LawyerDashboard() {
     }
   }, [isAuthenticated, isLoading, user, toast]);
 
-  const { data: cases, isLoading: casesLoading } = useQuery({
+  const { data: cases, isLoading: casesLoading } = useQuery<any[]>({
     queryKey: ["/api/cases"],
     enabled: isAuthenticated && user?.role === 'lawyer',
   });
 
-  const { data: recentActivity } = useQuery({
+  const { data: recentActivity } = useQuery<any[]>({
     queryKey: ["/api/cases", "", "5", "0"],
     enabled: isAuthenticated && user?.role === 'lawyer',
   });

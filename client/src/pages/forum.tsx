@@ -56,7 +56,7 @@ export default function Forum() {
     }
   }, [isAuthenticated, isLoading, toast]);
 
-  const { data: questions, isLoading: questionsLoading } = useQuery({
+  const { data: questions, isLoading: questionsLoading } = useQuery<any[]>({
     queryKey: ["/api/forum/questions", selectedCategory, selectedStatus],
   });
 

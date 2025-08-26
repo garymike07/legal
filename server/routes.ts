@@ -88,8 +88,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       // Increment view count
+      const currentViews = question.viewsCount ?? 0;
       await storage.updateForumQuestion(req.params.id, {
-        viewsCount: question.viewsCount + 1,
+        viewsCount: currentViews + 1,
       });
       
       res.json(question);
@@ -149,9 +150,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Question not found" });
       }
 
+      const safeUp = question.upvotes ?? 0;
+      const safeDown = question.downvotes ?? 0;
+
       const updates = type === 'up' 
-        ? { upvotes: question.upvotes + 1 }
-        : { downvotes: question.downvotes + 1 };
+        ? { upvotes: safeUp + 1 }
+        : { downvotes: safeDown + 1 };
 
       const updated = await storage.updateForumQuestion(req.params.id, updates);
       res.json(updated);
@@ -170,9 +174,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const currentAnswer = answer[0];
+      const safeUp = currentAnswer.upvotes ?? 0;
+      const safeDown = currentAnswer.downvotes ?? 0;
+
       const updates = type === 'up' 
-        ? { upvotes: currentAnswer.upvotes + 1 }
-        : { downvotes: currentAnswer.downvotes + 1 };
+        ? { upvotes: safeUp + 1 }
+        : { downvotes: safeDown + 1 };
 
       const updated = await storage.updateForumAnswer(req.params.id, updates);
       res.json(updated);

@@ -13,9 +13,9 @@ export async function createApp() {
 		let capturedJsonResponse: Record<string, any> | undefined = undefined;
 
 		const originalResJson = res.json;
-		(res as any).json = function (bodyJson: any, ...args: any[]) {
+		(res as any).json = function (bodyJson: any) {
 			capturedJsonResponse = bodyJson;
-			return originalResJson.apply(res, [bodyJson, ...args]);
+			return originalResJson.call(res, bodyJson);
 		};
 
 		res.on("finish", () => {

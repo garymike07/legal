@@ -30,11 +30,11 @@ export default function Documents() {
     }
   }, [isAuthenticated, isLoading, toast]);
 
-  const { data: templates, isLoading: templatesLoading } = useQuery({
+  const { data: templates, isLoading: templatesLoading } = useQuery<any[]>({
     queryKey: ["/api/document-templates", selectedCategory],
   });
 
-  const { data: userDocuments, isLoading: documentsLoading } = useQuery({
+  const { data: userDocuments, isLoading: documentsLoading } = useQuery<any[]>({
     queryKey: ["/api/generated-documents"],
     enabled: isAuthenticated,
   });

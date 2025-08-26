@@ -96,7 +96,7 @@ export class DatabaseStorage implements IStorage {
   async getLegalDocuments(filters?: { category?: string; search?: string; limit?: number; offset?: number }): Promise<LegalDocument[]> {
     let query = db.select().from(legalDocuments);
     
-    const conditions = [];
+    const conditions = [] as any[];
     if (filters?.category) {
       conditions.push(eq(legalDocuments.category, filters.category as any));
     }
@@ -110,19 +110,19 @@ export class DatabaseStorage implements IStorage {
     }
     
     if (conditions.length > 0) {
-      query = query.where(and(...conditions));
+      query = (query as any).where(and(...conditions));
     }
     
-    query = query.orderBy(desc(legalDocuments.createdAt));
+    query = (query as any).orderBy(desc(legalDocuments.createdAt));
     
     if (filters?.limit) {
-      query = query.limit(filters.limit);
+      query = (query as any).limit(filters.limit);
     }
     if (filters?.offset) {
-      query = query.offset(filters.offset);
+      query = (query as any).offset(filters.offset);
     }
     
-    return await query;
+    return await (query as any);
   }
 
   async getLegalDocument(id: string): Promise<LegalDocument | undefined> {
@@ -146,7 +146,7 @@ export class DatabaseStorage implements IStorage {
 
   // Forum operations
   async getForumQuestions(filters?: { category?: string; status?: string; limit?: number; offset?: number }): Promise<(ForumQuestion & { user: User; answersCount: number })[]> {
-    const conditions = [];
+    const conditions = [] as any[];
     if (filters?.category) {
       conditions.push(eq(forumQuestions.category, filters.category as any));
     }
@@ -174,7 +174,7 @@ export class DatabaseStorage implements IStorage {
       .from(forumQuestions)
       .leftJoin(users, eq(forumQuestions.userId, users.id));
 
-    let query = baseQuery;
+    let query: any = baseQuery;
     
     if (conditions.length > 0) {
       query = query.where(and(...conditions));
@@ -190,7 +190,7 @@ export class DatabaseStorage implements IStorage {
     }
     
     const results = await query;
-    return results.map(result => ({
+    return results.map((result: any) => ({
       ...result,
       user: result.user!,
       answersCount: Number(result.answersCount),
@@ -262,7 +262,7 @@ export class DatabaseStorage implements IStorage {
 
   // Legal cases operations
   async getLegalCases(lawyerId: string, filters?: { status?: string; limit?: number; offset?: number }): Promise<LegalCase[]> {
-    let query = db.select().from(legalCases).where(eq(legalCases.lawyerId, lawyerId));
+    let query: any = db.select().from(legalCases).where(eq(legalCases.lawyerId, lawyerId));
     
     if (filters?.status) {
       query = query.where(and(
@@ -280,7 +280,7 @@ export class DatabaseStorage implements IStorage {
       query = query.offset(filters.offset);
     }
     
-    return await query;
+    return await query as LegalCase[];
   }
 
   async getLegalCase(id: string): Promise<LegalCase | undefined> {
@@ -304,7 +304,7 @@ export class DatabaseStorage implements IStorage {
 
   // Document templates operations
   async getDocumentTemplates(category?: string): Promise<DocumentTemplate[]> {
-    let query = db.select().from(documentTemplates).where(eq(documentTemplates.isActive, true));
+    let query: any = db.select().from(documentTemplates).where(eq(documentTemplates.isActive, true));
     
     if (category) {
       query = query.where(and(
@@ -313,7 +313,7 @@ export class DatabaseStorage implements IStorage {
       ));
     }
     
-    return await query.orderBy(asc(documentTemplates.name));
+    return await query.orderBy(asc(documentTemplates.name)) as DocumentTemplate[];
   }
 
   async getDocumentTemplate(id: string): Promise<DocumentTemplate | undefined> {
@@ -346,7 +346,7 @@ export class DatabaseStorage implements IStorage {
 
   // Legal aid applications
   async getLegalAidApplications(filters?: { status?: string; limit?: number; offset?: number }): Promise<(LegalAidApplication & { user: User })[]> {
-    let query = db
+    let query: any = db
       .select({
         application: legalAidApplications,
         user: users,
@@ -368,7 +368,7 @@ export class DatabaseStorage implements IStorage {
     }
     
     const results = await query;
-    return results.map(result => ({
+    return results.map((result: any) => ({
       ...result.application,
       user: result.user!,
     }));
