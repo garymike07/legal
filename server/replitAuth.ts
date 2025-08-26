@@ -143,6 +143,29 @@ export async function setupAuth(app: Express) {
 
 export const isAuthenticated: RequestHandler = async (req, res, next) => {
 	if (!authEnabled) {
+		// Development fallback: attach a mock user so routes can function locally
+		const devClaims = {
+			sub: "dev-user",
+			email: "dev@example.com",
+			first_name: "Dev",
+			last_name: "User",
+			profile_image_url: "",
+		};
+
+		// Ensure the user exists in storage for downstream queries
+		await storage.upsertUser({
+			id: devClaims.sub,
+			email: devClaims.email,
+			firstName: devClaims.first_name,
+			lastName: devClaims.last_name,
+			profileImageUrl: devClaims.profile_image_url,
+		});
+
+		(req as any).user = {
+			claims: devClaims,
+			expires_at: Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 365, // 1 year
+		};
+
 		return next();
 	}
 	const user = req.user as any;

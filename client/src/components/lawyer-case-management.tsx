@@ -49,7 +49,7 @@ export default function LawyerCaseManagement() {
     },
   });
 
-  const { data: cases, isLoading: casesLoading } = useQuery({
+  const { data: cases, isLoading: casesLoading } = useQuery<any[]>({
     queryKey: ["/api/cases", selectedStatus],
   });
 

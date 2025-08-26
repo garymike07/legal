@@ -29,7 +29,7 @@ export default function Constitution() {
     }
   }, [isAuthenticated, isLoading, toast]);
 
-  const { data: searchResults, isLoading: searchLoading } = useQuery({
+  const { data: searchResults, isLoading: searchLoading } = useQuery<any[]>({
     queryKey: ["/api/constitution/search", searchQuery],
     enabled: searchQuery.length > 2,
   });
